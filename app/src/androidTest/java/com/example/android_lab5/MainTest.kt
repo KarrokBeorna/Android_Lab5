@@ -80,7 +80,6 @@ class MainTest {
         onView(withId(R.id.button3)).perform(click())
         onView(withId(R.id.button5)).perform(click())
         onView(withId(R.id.button2)).perform(click())
-        onView(withId(R.id.button)).check(matches(isDisplayed()))
         pressBack()
         onView(withId(R.id.button)).check(matches(isDisplayed()))
         try {
@@ -113,7 +112,6 @@ class MainTest {
         onView(withId(R.id.button3)).perform(click())
         onView(withId(R.id.button5)).perform(click())
         onView(withId(R.id.button2)).perform(click())
-        onView(withId(R.id.button)).check(matches(isDisplayed()))
         pressBack()
         //android.os.Process.killProcess(android.os.Process.myPid())
         onView(withId(R.id.button)).check(matches(isDisplayed()))
