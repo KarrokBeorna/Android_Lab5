@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Android_Lab5</string>
+    <string name="button">Button</string>
+    <string name="Task3">
+        Нинаю, что вы тут хотели увидеть, \n
+        но тут нет ничего интересного \\_(-.-)_/
+    </string>
+    <string name="about">About</string>
+</resources>
