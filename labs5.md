@@ -17,8 +17,8 @@
             @get:Rule
             val activityRule = ActivityScenarioRule(MainActivity::class.java)
             ...
-  - @LargeTest - аннотация для назначения тесту квалификатора большого размера теста. Такие тесты должны быть сосредоточены на тестировании интеграции всех компонентов приложения.
-  - @get:Rule - получаем правило.
+  - `@LargeTest` - аннотация для назначения тесту квалификатора большого размера теста. Такие тесты должны быть сосредоточены на тестировании интеграции всех компонентов приложения.
+  - `@get:Rule` - получаем правило.
   - В сценарий мы передаем LAUNCHER-activity из манифеста.
 2. Теперь напишем наши тесты:
 
@@ -42,7 +42,7 @@
         }
   - первые 2 строчки: создаем переменные, так как только к этим элементам мы и будем обращаться;
   - следующие 2 строчки - чекаем на правильность начальных слов в элементах;
-  - дальше нажимаем на кнопку и изменяем текст в EditText с помощью методов click() и replaceText();
+  - дальше нажимаем на кнопку и изменяем текст в EditText с помощью методов `click()` и `replaceText()`;
   - поворачиваем экран (готовый код дали в тексте задания);
   - проверяем, что у нас теперь написано на кнопке и в текстовом поле - поле осталось без изменений, кнопка вернулась в исходное состояние.
 
@@ -56,7 +56,7 @@
 1. Сначала, как и в первой задаче, пропишем правило, при этом необходимо изменить в манифесте запускающую Activity.
    - Стоит отметить, что 2 правила не поддерживаются, поэтому я просто закомментировал первое правило.
 
-          val activityRuleTask2 = ActivityScenarioRule(Activity1::class.java)
+          val activityRuleTask2 = ActivityTestRule(Activity1::class.java)
 2. Предварительно напишем проверки для каждой Activity - что кнопка(-и), которая(-ые) у неё есть, действительно отображается(-ются), а которые не должны - нет.
 
         private fun first() {
@@ -104,7 +104,7 @@
    - Перейдем во вторую, оттуда в третью и сверимся.
    - Переходим во вторую и проверяем.
    - Переходим в первую.
-4. Напишем второй тест - проверим наш backstack:
+4. Напишем еще 2 теста - проверим наш backstack:
 
         @Test
         fun backstackTest() {
@@ -114,33 +114,47 @@
             third()
             onView(withId(R.id.button4)).perform(click())
             first()
-            pressBackUnconditionally()
+            try {
+                pressBack()
+            } catch (e: NoActivityResumedException) {
+                // приложение закрылось
+            }
+            assertTrue(activityRuleTask2.activity.isDestroyed)
+        }
 
+        @Test
+        fun backstackTest2() {
             onView(withId(R.id.button)).perform(click())
             onView(withId(R.id.button3)).perform(click())
             onView(withId(R.id.button5)).perform(click())
             onView(withId(R.id.button2)).perform(click())
-            pressBackUnconditionally()
+            try {
+                pressBack()
+            } catch (e: NoActivityResumedException) {
+                // вышли из приложения
+            }
+            assertTrue(activityRuleTask2.activity.isDestroyed)
         }
+
    - Проверяем, в первой ли мы Activity.
    - Переходим во вторую, оттуда в третью и сверяемся.
    - Переходим в первую и проверяем.
-   - Безопасно нажимаем кнопку "Back", чтобы не словить исключение при выходе из приложения.
-   - Опять переходим 1-2-3-2-1 и после чего безопасно нажимаем на кнопку "Back".
+   - Пробуем нажать "Назад", однако мы знаем, что поймаем исключение, поэтому обратим нажатие в блок try-catch.
+   - Проверяем, разрушена ли наша активити.
+   - Опять переходим 1-2-3-2-1 и после чего опять нажимаем "Назад" с поимкой исключения.
 5. Предсказуемо, что у нас ничего не будет меняться после поворота экрана, но давайте удостоверимся в этом и напишем последний тест:
 
         @Test
         fun landscapeTest() {
             first()
             onView(withId(R.id.button)).perform(click())
-            activityRuleTask2.scenario.onActivity{
-                it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
+            activityRuleTask2.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             second()
             onView(withId(R.id.button2)).perform(click())
             task2Test()
             backstackTest()
         }
+
    - Сначала опять смотрим, в первой ли мы Activity.
    - Переходим во вторую Activity.
    - Поворачиваем экран.
@@ -154,3 +168,6 @@
 Все написанные тесты конечно же прошли. Тестировал на физическом устройстве, причем предварительно выключал анимацию переходов, как это советуют в Espresso туториале, однако и после их включения всё выполнилось.
 
 Писать тесты, конечно, интересно, но всё же клацать и тестировать приложение вживую интереснее. Суммарно затраченное время - 4-5 часов с учетом отчёта. 
+
+P.S. Использование `androidx.test.espresso.action.ViewActions.pressBack` **НЕ** дает исключение при выходе из приложения!!!
+А вот `androidx.test.espresso.Espresso.pressBack` как раз даёт.
